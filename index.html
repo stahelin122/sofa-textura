@@ -1,107 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Substituir Tecido no Sofá com Cloudinary</title>
-    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-        }
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
-        }
-        label {
-            font-size: 18px;
-            color: #555;
-            font-weight: bold;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .custom-file-upload {
-            border: 2px solid #4CAF50;
-            display: inline-block;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            color: #4CAF50;
-            background-color: white;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #preview {
-            margin-top: 30px;
-            text-align: center;
-        }
-        #resultImage {
-            max-width: 100%;
-            border: 2px solid #ddd;
-            padding: 10px;
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Substituir Tecido no Sofá</h1>
-
-    <div class="upload-section">
-        <label for="sofaUpload" class="custom-file-upload">
-            Upload da Imagem do Sofá
-        </label>
-        <input type="file" id="sofaUpload">
-
-        <label for="tecidoUpload" class="custom-file-upload">
-            Upload da Imagem do Tecido
-        </label>
-        <input type="file" id="tecidoUpload">
-
-        <button id="applyTextureBtn">Aplicar Textura</button>
-    </div>
-
-    <div id="preview">
-        <h2>Resultado:</h2>
-        <img id="resultImage" src="" alt="Imagem resultante aparecerá aqui">
-    </div>
-</div>
-
 <script>
     const cloudName = 'dt9zydui9'; // Seu cloud_name
     const uploadPreset = 'sofa-textura'; // O nome do upload_preset configurado no Cloudinary
@@ -111,6 +7,7 @@
 
     // Função para fazer upload da imagem para o Cloudinary
     function uploadImage(file, callback) {
+        console.log('Arquivo selecionado para upload:', file); // Verifique se o arquivo está correto
         const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
         const formData = new FormData();
         formData.append('file', file);
@@ -120,8 +17,15 @@
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                console.error('Erro no upload:', response.statusText); // Exibe o erro no upload
+                throw new Error(response.statusText);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Upload realizado com sucesso. URL:', data.secure_url); // Exibe a URL gerada
             callback(data.secure_url); // Retorna a URL da imagem carregada
         })
         .catch(err => console.error('Erro no upload:', err));
@@ -130,6 +34,10 @@
     // Upload da imagem do sofá
     document.getElementById('sofaUpload').addEventListener('change', function(event) {
         const file = event.target.files[0];
+        if (!file) {
+            console.error('Nenhum arquivo de sofá selecionado.');
+            return;
+        }
         uploadImage(file, function(url) {
             sofaUrl = url;
             console.log('URL do sofá:', sofaUrl);
@@ -139,6 +47,10 @@
     // Upload da imagem do tecido
     document.getElementById('tecidoUpload').addEventListener('change', function(event) {
         const file = event.target.files[0];
+        if (!file) {
+            console.error('Nenhum arquivo de tecido selecionado.');
+            return;
+        }
         uploadImage(file, function(url) {
             tecidoUrl = url;
             console.log('URL do tecido:', tecidoUrl);
@@ -151,12 +63,11 @@
             const resultImage = document.getElementById('resultImage');
             const transformationUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_${tecidoUrl.replace('https://res.cloudinary.com/'+cloudName+'/image/upload/', '')},fl_cutter/${sofaUrl.replace('https://res.cloudinary.com/'+cloudName+'/image/upload/', '')}`;
 
+            console.log('URL de transformação gerada:', transformationUrl);
             resultImage.src = transformationUrl;
         } else {
+            console.error('URLs das imagens não estão prontas. Verifique os uploads.');
             alert('Por favor, faça o upload das duas imagens.');
         }
     });
 </script>
-
-</body>
-</html>

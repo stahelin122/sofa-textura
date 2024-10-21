@@ -187,7 +187,7 @@
         }
     }
 
-    // Aplicar a textura do tecido sobre a imagem do sofá
+    // Aplicar a cor do tecido sobre a imagem do sofá
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
         if (sofaUrl && tecidoUrl) {
             const resultImage = document.getElementById('resultImage');
@@ -196,7 +196,8 @@
             const sofaPublicId = sofaUrl.match(/\/upload\/(?:v\d+\/)?([^\.]+)/)[1];
             const tecidoPublicId = tecidoUrl.match(/\/upload\/(?:v\d+\/)?([^\.]+)/)[1];
 
-            const transformationUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_${tecidoPublicId},fl_cutter/${sofaPublicId}.png`;
+            // URL de transformação com 'e_multiply' para aplicar a cor do tecido de maneira suave no sofá
+            const transformationUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_${tecidoPublicId},e_multiply/${sofaPublicId}.png`;
 
             resultImage.src = transformationUrl;
         } else {

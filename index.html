@@ -146,16 +146,21 @@
     // Aplicar a textura do tecido sobre o sofá mantendo os detalhes
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
         if (sofaLoaded && tecidoLoaded) {
-            // Primeiro, desenha o sofá
+            // Primeiro, desenha o sofá original
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(sofaImage, 0, 0, canvas.width, canvas.height);
 
-            // Definir o tamanho do tecido de acordo com o sofá
-            const pattern = ctx.createPattern(tecidoImage, 'repeat');
-            ctx.fillStyle = pattern;
+            // Criar padrão de tecido
+            const patternCanvas = document.createElement('canvas');
+            const patternCtx = patternCanvas.getContext('2d');
+            patternCanvas.width = tecidoImage.width;
+            patternCanvas.height = tecidoImage.height;
+            patternCtx.drawImage(tecidoImage, 0, 0);
+            const pattern = ctx.createPattern(patternCanvas, 'repeat');
 
-            // Criar uma máscara com a imagem do sofá original
-            ctx.globalCompositeOperation = 'source-in';
+            // Aplicar a textura com blend mode para preservar as sombras
+            ctx.globalCompositeOperation = 'source-atop'; // Aplicar o tecido na forma do sofá preservando as sombras
+            ctx.fillStyle = pattern;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Resetar o composite operation para futuras operações de desenho

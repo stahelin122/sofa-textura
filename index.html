@@ -167,8 +167,8 @@
             const resultImage = document.getElementById('resultImage');
             
             // Extraímos o ID público de cada imagem, removendo a parte do URL completo
-            const sofaPublicId = sofaUrl.split('/').pop().split('.')[0];  // Pega o ID do sofá
-            const tecidoPublicId = tecidoUrl.split('/').pop().split('.')[0];  // Pega o ID do tecido
+            const sofaPublicId = sofaUrl.match(/upload\/(?:v\d+\/)?([^\.]+)/)[1];  // Pega o ID do sofá
+            const tecidoPublicId = tecidoUrl.match(/upload\/(?:v\d+\/)?([^\.]+)/)[1];  // Pega o ID do tecido
 
             const transformationUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_${tecidoPublicId},fl_cutter/${sofaPublicId}.png`;
 

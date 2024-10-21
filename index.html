@@ -9,7 +9,6 @@
         * {
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -17,7 +16,6 @@
             background-color: #f4f4f9;
             color: #333;
         }
-
         .container {
             max-width: 900px;
             margin: 30px auto;
@@ -26,29 +24,24 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
         h1 {
             text-align: center;
             color: #4CAF50;
         }
-
         .upload-section {
             display: flex;
             flex-direction: column;
             gap: 20px;
             align-items: center;
         }
-
         label {
             font-size: 18px;
             color: #555;
             font-weight: bold;
         }
-
         input[type="file"] {
             display: none;
         }
-
         .custom-file-upload {
             border: 2px solid #4CAF50;
             display: inline-block;
@@ -59,7 +52,6 @@
             color: #4CAF50;
             background-color: white;
         }
-
         button {
             background-color: #4CAF50;
             color: white;
@@ -70,16 +62,13 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
         button:hover {
             background-color: #45a049;
         }
-
         #preview {
             margin-top: 30px;
             text-align: center;
         }
-
         #resultImage {
             max-width: 100%;
             border: 2px solid #ddd;
@@ -114,9 +103,8 @@
 </div>
 
 <script>
-    // Configurações do Cloudinary
     const cloudName = 'dt9zydui9'; // Seu cloud_name
-    const uploadPreset = 'seu_upload_preset'; // Substitua pelo upload_preset configurado no Cloudinary
+    const uploadPreset = 'seu_upload_preset'; // Substitua pelo seu upload_preset configurado no Cloudinary
 
     let sofaUrl = '';
     let tecidoUrl = '';
@@ -161,11 +149,9 @@
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
         if (sofaUrl && tecidoUrl) {
             const resultImage = document.getElementById('resultImage');
-            
-            // URL de manipulação da imagem no Cloudinary
             const transformationUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_${tecidoUrl.replace('https://res.cloudinary.com/'+cloudName+'/image/upload/', '')},fl_cutter/${sofaUrl.replace('https://res.cloudinary.com/'+cloudName+'/image/upload/', '')}`;
 
-            resultImage.src = transformationUrl; // Exibir imagem final no preview
+            resultImage.src = transformationUrl;
         } else {
             alert('Por favor, faça o upload das duas imagens.');
         }

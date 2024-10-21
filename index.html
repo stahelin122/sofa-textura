@@ -52,6 +52,19 @@
             color: #4CAF50;
             background-color: white;
         }
+        .upload-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .upload-status span {
+            font-size: 16px;
+        }
+        .check-icon {
+            color: green;
+            font-size: 20px;
+            display: none;
+        }
         button {
             background-color: #4CAF50;
             color: white;
@@ -83,15 +96,21 @@
     <h1>Substituir Tecido no Sofá</h1>
 
     <div class="upload-section">
-        <label for="sofaUpload" class="custom-file-upload">
-            Upload da Imagem do Sofá
-        </label>
-        <input type="file" id="sofaUpload">
+        <div class="upload-status">
+            <label for="sofaUpload" class="custom-file-upload">
+                Upload da Imagem do Sofá
+            </label>
+            <input type="file" id="sofaUpload">
+            <span id="sofaCheck" class="check-icon">✔</span>
+        </div>
 
-        <label for="tecidoUpload" class="custom-file-upload">
-            Upload da Imagem do Tecido
-        </label>
-        <input type="file" id="tecidoUpload">
+        <div class="upload-status">
+            <label for="tecidoUpload" class="custom-file-upload">
+                Upload da Imagem do Tecido
+            </label>
+            <input type="file" id="tecidoUpload">
+            <span id="tecidoCheck" class="check-icon">✔</span>
+        </div>
 
         <button id="applyTextureBtn">Aplicar Textura</button>
     </div>
@@ -111,7 +130,6 @@
 
     // Função para fazer upload da imagem para o Cloudinary
     function uploadImage(file, callback) {
-        console.log('Arquivo selecionado para upload:', file); // Verifique se o arquivo está correto
         const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
         const formData = new FormData();
         formData.append('file', file);
@@ -123,13 +141,12 @@
         })
         .then(response => {
             if (!response.ok) {
-                console.error('Erro no upload:', response.statusText); // Exibe o erro no upload
+                console.error('Erro no upload:', response.statusText);
                 throw new Error(response.statusText);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Upload realizado com sucesso. URL:', data.secure_url); // Exibe a URL gerada
             callback(data.secure_url); // Retorna a URL da imagem carregada
         })
         .catch(err => console.error('Erro no upload:', err));
@@ -144,7 +161,8 @@
         }
         uploadImage(file, function(url) {
             sofaUrl = url;
-            console.log('URL do sofá:', sofaUrl);
+            document.getElementById('sofaCheck').style.display = 'inline'; // Mostra o check verde
+            updateButton();
         });
     });
 
@@ -157,9 +175,17 @@
         }
         uploadImage(file, function(url) {
             tecidoUrl = url;
-            console.log('URL do tecido:', tecidoUrl);
+            document.getElementById('tecidoCheck').style.display = 'inline'; // Mostra o check verde
+            updateButton();
         });
     });
+
+    // Atualiza o botão para "Ver o Resultado" quando ambos os uploads estiverem completos
+    function updateButton() {
+        if (sofaUrl && tecidoUrl) {
+            document.getElementById('applyTextureBtn').textContent = 'Ver o Resultado';
+        }
+    }
 
     // Aplicar a textura do tecido sobre a imagem do sofá
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
@@ -167,15 +193,13 @@
             const resultImage = document.getElementById('resultImage');
             
             // Extraímos o ID público de cada imagem, removendo a parte do URL completo
-            const sofaPublicId = sofaUrl.match(/\/upload\/(?:v\d+\/)?([^\.]+)/)[1];  // Pega o ID do sofá
-            const tecidoPublicId = tecidoUrl.match(/\/upload\/(?:v\d+\/)?([^\.]+)/)[1];  // Pega o ID do tecido
+            const sofaPublicId = sofaUrl.match(/\/upload\/(?:v\d+\/)?([^\.]+)/)[1];
+            const tecidoPublicId = tecidoUrl.match(/\/upload\/(?:v\d+\/)?([^\.]+)/)[1];
 
             const transformationUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_${tecidoPublicId},fl_cutter/${sofaPublicId}.png`;
 
-            console.log('URL de transformação gerada:', transformationUrl);
             resultImage.src = transformationUrl;
         } else {
-            console.error('URLs das imagens não estão prontas. Verifique os uploads.');
             alert('Por favor, faça o upload das duas imagens.');
         }
     });

@@ -150,21 +150,36 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(sofaImage, 0, 0, canvas.width, canvas.height);
 
-            // Criar padrão de tecido
-            const patternCanvas = document.createElement('canvas');
-            const patternCtx = patternCanvas.getContext('2d');
-            patternCanvas.width = tecidoImage.width;
-            patternCanvas.height = tecidoImage.height;
-            patternCtx.drawImage(tecidoImage, 0, 0);
-            const pattern = ctx.createPattern(patternCanvas, 'repeat');
+            // Criar um canvas auxiliar para redimensionar o tecido ao tamanho do sofá
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = sofaImage.width;
+            tempCanvas.height = sofaImage.height;
+            tempCtx.drawImage(tecidoImage, 0, 0, sofaImage.width, sofaImage.height);
 
-            // Aplicar a textura com blend mode para preservar as sombras
-            ctx.globalCompositeOperation = 'source-atop'; // Aplicar o tecido na forma do sofá preservando as sombras
-            ctx.fillStyle = pattern;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Obter os dados da imagem do tecido e do sofá
+            const sofaData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const tecidoData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const resultData = ctx.createImageData(sofaData);
 
-            // Resetar o composite operation para futuras operações de desenho
-            ctx.globalCompositeOperation = 'source-over';
+            // Aplicar a cor do tecido aos pixels do sofá
+            for (let i = 0; i < sofaData.data.length; i += 4) {
+                if (sofaData.data[i + 3] > 0) { // Se o pixel do sofá não for transparente
+                    // Aplicar a cor do tecido, preservando a luminância do sofá
+                    const r = tecidoData.data[i];
+                    const g = tecidoData.data[i + 1];
+                    const b = tecidoData.data[i + 2];
+                    const luminance = 0.3 * sofaData.data[i] + 0.59 * sofaData.data[i + 1] + 0.11 * sofaData.data[i + 2];
+                    
+                    resultData.data[i] = r * (luminance / 255);
+                    resultData.data[i + 1] = g * (luminance / 255);
+                    resultData.data[i + 2] = b * (luminance / 255);
+                    resultData.data[i + 3] = sofaData.data[i + 3];
+                }
+            }
+
+            // Desenhar a imagem resultante no canvas
+            ctx.putImageData(resultData, 0, 0);
 
             // Salvar o resultado como PNG
             const link = document.createElement('a');

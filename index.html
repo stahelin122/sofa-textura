@@ -143,23 +143,27 @@
         reader.readAsDataURL(file);
     });
 
-    // Aplicar a textura do tecido sobre o sofá mantendo o fundo
+    // Aplicar a textura do tecido sobre o sofá e manter o fundo branco
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
         if (sofaLoaded && tecidoLoaded) {
-            // Desenha a imagem do sofá primeiro
+            // Primeiro, desenha o sofá com transparência
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Cria um fundo branco
+            ctx.fillStyle = "#FFFFFF";  // Fundo branco
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Desenha a imagem do sofá original
             ctx.drawImage(sofaImage, 0, 0, canvas.width, canvas.height);
 
-            // Usamos 'destination-atop' para aplicar a cor apenas nas áreas do sofá (mantendo o fundo transparente)
-            ctx.globalAlpha = 0.8; // Ajuste a opacidade da cor
-            ctx.globalCompositeOperation = 'source-atop'; // A cor só será aplicada onde já houver pixels da imagem original
+            // Usar 'destination-in' para fazer a máscara do sofá e aplicar o tecido
+            ctx.globalCompositeOperation = 'source-in';  // Mantém a forma do sofá
             ctx.drawImage(tecidoImage, 0, 0, canvas.width, canvas.height);
-            
-            // Resetar o composite operation para operações futuras
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.globalAlpha = 1.0;
 
-            // Salvar a imagem resultante como PNG
+            // Resetar a operação para futuras operações de desenho
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Salvar o resultado como PNG
             const link = document.createElement('a');
             link.download = 'sofa_resultado.png';
             link.href = canvas.toDataURL();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Substituir Tecido no Sofá - Canvas</title>
+    <title>Substituir Tecido no Sofá - Localmente</title>
     <style>
         * {
             box-sizing: border-box;
@@ -143,19 +143,23 @@
         reader.readAsDataURL(file);
     });
 
-    // Aplicar a textura do tecido sobre o sofá
+    // Aplicar a textura do tecido sobre o sofá mantendo o fundo
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
         if (sofaLoaded && tecidoLoaded) {
             // Desenha a imagem do sofá primeiro
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(sofaImage, 0, 0, canvas.width, canvas.height);
 
-            // Aplicar a cor do tecido sobre o sofá
-            ctx.globalAlpha = 0.5; // Ajuste a opacidade conforme necessário
+            // Usamos 'destination-atop' para aplicar a cor apenas nas áreas do sofá (mantendo o fundo transparente)
+            ctx.globalAlpha = 0.8; // Ajuste a opacidade da cor
+            ctx.globalCompositeOperation = 'source-atop'; // A cor só será aplicada onde já houver pixels da imagem original
             ctx.drawImage(tecidoImage, 0, 0, canvas.width, canvas.height);
-            ctx.globalAlpha = 1.0; // Resetar a opacidade
+            
+            // Resetar o composite operation para operações futuras
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = 1.0;
 
-            // Salva o resultado como PNG
+            // Salvar a imagem resultante como PNG
             const link = document.createElement('a');
             link.download = 'sofa_resultado.png';
             link.href = canvas.toDataURL();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Substituir Tecido no Sofá - Local</title>
+    <title>Substituir Tecido no Sofá - Canvas</title>
     <style>
         * {
             box-sizing: border-box;
@@ -100,7 +100,7 @@
 
     <div id="preview">
         <h2>Resultado:</h2>
-        <canvas id="canvas" width="500" height="500"></canvas>
+        <canvas id="canvas" width="1000" height="1000"></canvas>
     </div>
 </div>
 
@@ -113,19 +113,24 @@
     let sofaLoaded = false;
     let tecidoLoaded = false;
 
+    // Função para carregar a imagem do sofá
     document.getElementById('sofaUpload').addEventListener('change', function(event) {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
             sofaImage.src = e.target.result;
             sofaImage.onload = function() {
-                ctx.drawImage(sofaImage, 0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.width = sofaImage.width;
+                canvas.height = sofaImage.height;
+                ctx.drawImage(sofaImage, 0, 0);
                 sofaLoaded = true;
             };
         };
         reader.readAsDataURL(file);
     });
 
+    // Função para carregar a imagem do tecido
     document.getElementById('tecidoUpload').addEventListener('change', function(event) {
         const file = event.target.files[0];
         const reader = new FileReader();
@@ -138,15 +143,23 @@
         reader.readAsDataURL(file);
     });
 
+    // Aplicar a textura do tecido sobre o sofá
     document.getElementById('applyTextureBtn').addEventListener('click', function() {
         if (sofaLoaded && tecidoLoaded) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             // Desenha a imagem do sofá primeiro
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(sofaImage, 0, 0, canvas.width, canvas.height);
-            // Aplica a cor do tecido sobre a imagem do sofá
-            ctx.globalAlpha = 0.5; // Definir a transparência para sobrepor a cor
+
+            // Aplicar a cor do tecido sobre o sofá
+            ctx.globalAlpha = 0.5; // Ajuste a opacidade conforme necessário
             ctx.drawImage(tecidoImage, 0, 0, canvas.width, canvas.height);
-            ctx.globalAlpha = 1.0; // Resetar para desenhar normalmente depois
+            ctx.globalAlpha = 1.0; // Resetar a opacidade
+
+            // Salva o resultado como PNG
+            const link = document.createElement('a');
+            link.download = 'sofa_resultado.png';
+            link.href = canvas.toDataURL();
+            link.click();
         } else {
             alert('Por favor, faça o upload das duas imagens.');
         }
